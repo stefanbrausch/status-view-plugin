@@ -25,6 +25,8 @@ package hudson.plugins.status_view;
 
 import hudson.model.Descriptor.FormException;
 import hudson.Extension;
+import hudson.model.AbstractProject;
+import hudson.model.Hudson;
 import hudson.model.Job;
 import hudson.model.ListView;
 import hudson.model.Result;
@@ -44,7 +46,7 @@ import org.kohsuke.stapler.StaplerRequest;
  */
 public class StatusView extends ListView {
 
-    private boolean stable, unstable, failed, aborted, running;
+    private boolean stable, unstable, failed, aborted, running, active;
 
     @DataBoundConstructor
     public StatusView(String name) {
@@ -56,7 +58,8 @@ public class StatusView extends ListView {
     public boolean isFailed() { return failed; }
     public boolean isAborted() { return aborted; }
     public boolean isRunning() { return running; }
-
+    public boolean isActive() { return active; }
+ 
     @Override
     public synchronized List<TopLevelItem> getItems() {
         List<TopLevelItem> base = super.getItems(),
@@ -64,6 +67,8 @@ public class StatusView extends ListView {
         for (TopLevelItem item : base) {
             if (item instanceof Job) {
                 if (running && !((Job)item).isBuilding()) continue;
+                if (active && ((AbstractProject<?, ?>) Hudson.getInstance()
+                        .getItem(item.getName())).isDisabled()) continue;
                 Run lastBuild = ((Job)item).getLastCompletedBuild();
                 Result status = lastBuild!=null ? lastBuild.getResult() : null;
                 if ( (stable && status == Result.SUCCESS)
@@ -85,6 +90,7 @@ public class StatusView extends ListView {
         failed = req.hasParameter("status_view.failed");
         aborted = req.hasParameter("status_view.aborted");
         running = req.hasParameter("status_view.running");
+        active = req.hasParameter("status_view.active");
         super.submit(req);
     }
 

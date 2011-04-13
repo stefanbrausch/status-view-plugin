@@ -32,5 +32,8 @@ THE SOFTWARE.
   <f:entry title="${%Running}" help="/plugin/status-view/help-running.html">
     <f:checkbox name="status_view.running" checked="${it.running}"/> ${%Running jobs only}
   </f:entry>
+  <f:entry title="${%Active}" help="/plugin/status-view/help-active.html">
+    <f:checkbox name="status_view.active" checked="${it.active}"/> ${%Active jobs only}
+  </f:entry>
   <st:include page="configure-entries.jelly" class="${it.class.superclass}"/>
 </j:jelly>
